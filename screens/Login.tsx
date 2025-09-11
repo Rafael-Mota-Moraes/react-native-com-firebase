@@ -2,23 +2,26 @@ import { useState } from "react";
 import { StyleSheet, Text, View, TextInput, Button } from "react-native";
 import { auth } from "../firebase";
 import { useNavigation } from "@react-navigation/native";
+import { styles } from "../styles";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
 
   const logar = () => {
-    if (!email || !senha) alert("E-mail e senha são obrigatórios");
+    if (!email || !senha) {
+      alert("E-mail e senha são obrigatórios");
+      return;
+    }
     auth
       .signInWithEmailAndPassword(email, senha)
-      .then((userCredentials) =>
-        console.log("Logado como: ", userCredentials.user?.email),
-      )
+      .then((userCredentials) => {
+        console.log("Logado como: ", userCredentials.user?.email);
+        navigation.replace("Home");
+      })
       .catch((err) => alert("Email ou senha inválidos"));
-
-    navigation.replace("Home");
   };
 
   return (
@@ -39,38 +42,11 @@ export default function Login() {
       />
       <View style={styles.buttonContainer}>
         <Button title="Entrar" onPress={logar} />
+        <Button
+          title="Registrar-se"
+          onPress={() => navigation.replace("Register")}
+        />
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 40,
-  },
-  input: {
-    width: "100%",
-    height: 50,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    fontSize: 16,
-  },
-  buttonContainer: {
-    width: "100%",
-    marginTop: 20,
-  },
-});
