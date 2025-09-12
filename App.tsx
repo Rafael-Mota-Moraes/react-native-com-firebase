@@ -7,6 +7,7 @@ import Register from "./screens/Register";
 
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Menu from "./screens/Menu";
 
 const Stack = createNativeStackNavigator();
 
@@ -23,6 +24,7 @@ export default function App() {
         />
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="Register" component={Register} />
+        <Stack.Screen name="Menu" component={Menu} />
       </Stack.Navigator>
     </NavigationContainer>
   );

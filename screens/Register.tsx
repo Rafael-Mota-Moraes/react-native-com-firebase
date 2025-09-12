@@ -7,26 +7,38 @@ import {
   View,
 } from "react-native";
 import { TextInput } from "react-native";
-import { auth } from "../firebase";
+import { auth, firestore } from "../firebase";
 import { useNavigation } from "@react-navigation/native";
 import { styles } from "../styles";
+import { Usuario } from "../models/Usuario";
 
 export default function Register() {
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [fone, setFone] = useState("");
+  const [formUsuario, setFormUsuario] = useState<Partial<Usuario>>({});
+
+  const refUsuario = firestore.collection('Usuario');
+
   const navigation = useNavigation<any>();
 
   const registrar = () => {
     auth
-      .createUserWithEmailAndPassword(email, senha)
-      .then((userCredentials) =>
-        console.log("Logado como: ", userCredentials.user?.email),
-      )
-      .catch((err) => alert("Email ou senha inválidos"));
+      .createUserWithEmailAndPassword(formUsuario.email, formUsuario.senha)
+      .then((userCredentials) => {
+        console.log("Logado como: ", userCredentials.user?.email);
 
-    navigation.replace("Home");
+        const idUsuario = refUsuario.doc(auth.currentUser.uid)
+        idUsuario.set({
+          id: auth.currentUser.uid,
+          nome: formUsuario.nome,
+          email: formUsuario.email,
+          senha: formUsuario.senha,
+          fone: formUsuario.fone,
+        })
+
+        navigation.replace("Home")
+      }
+      )
+      .catch((err) => { console.log(err); alert("Email ou senha inválidos"); });
+
   };
 
   return (
@@ -34,28 +46,24 @@ export default function Register() {
       <Text style={styles.title}>Faça seu registro</Text>
       <TextInput
         style={styles.input}
-        onChangeText={(value) => setNome(value)}
+        onChangeText={(value) => setFormUsuario({ ...formUsuario, nome: value })}
         placeholder="Nome"
-        value={nome}
       />
       <TextInput
         style={styles.input}
-        onChangeText={(value) => setEmail(value)}
+        onChangeText={(value) => setFormUsuario({ ...formUsuario, email: value })}
         placeholder="E-mail"
-        value={email}
       />
       <TextInput
         style={styles.input}
-        onChangeText={(value) => setSenha(value)}
+        onChangeText={(value) => setFormUsuario({ ...formUsuario, senha: value })}
         placeholder="Senha"
-        value={senha}
         secureTextEntry
       />
       <TextInput
         style={styles.input}
-        onChangeText={(value) => setFone(value)}
+        onChangeText={(value) => setFormUsuario({ ...formUsuario, fone: value })}
         placeholder="Fone"
-        value={fone}
       />
       <View style={styles.buttonContainer}>
         <Button title="Cadastrar" onPress={registrar} />
