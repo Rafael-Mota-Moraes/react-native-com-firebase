@@ -22,9 +22,21 @@ export default function App() {
             headerShown: false,
           }}
         />
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen
+          options={{
+            headerShown: false,
+          }}
+          name="Home"
+          component={Home}
+        />
         <Stack.Screen name="Register" component={Register} />
-        <Stack.Screen name="Menu" component={Menu} />
+        <Stack.Screen
+          options={{
+            headerShown: false,
+          }}
+          name="Menu"
+          component={Menu}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

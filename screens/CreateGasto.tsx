@@ -2,12 +2,11 @@ import { useState } from "react";
 import {
   Button,
   KeyboardAvoidingView,
-  StyleSheet,
   Text,
   View,
   TextInput,
 } from "react-native";
-import { firestore } from "../firebase";
+import { auth, firestore } from "../firebase";
 import { useNavigation } from "@react-navigation/native";
 import { styles } from "../styles";
 import { Gasto } from "../models/Gasto";
@@ -15,11 +14,14 @@ import { Gasto } from "../models/Gasto";
 export default function CreateGasto() {
   const [formGasto, setFormGasto] = useState<Partial<Gasto>>({});
 
-  const refGasto = firestore.collection("Gasto");
+  const refGasto = firestore
+    .collection("Usuario")
+    .doc(auth.currentUser.uid)
+    .collection("Gasto");
 
   const navigation = useNavigation<any>();
 
-  const cadastrar = async () => {
+  const salvar = async () => {
     try {
       const docRef = refGasto.doc();
       await docRef.set({
@@ -30,11 +32,15 @@ export default function CreateGasto() {
       });
 
       alert("Gasto cadastrado com sucesso!");
-      navigation.replace("Home");
+      navigation.replace("Menu");
     } catch (err) {
       console.log(err);
       alert("Não foi possível cadastrar o gasto");
     }
+  };
+
+  const voltar = () => {
+    navigation.replace("Menu");
   };
 
   return (
@@ -49,7 +55,7 @@ export default function CreateGasto() {
 
       <TextInput
         style={styles.input}
-        placeholder="Data (YYYY-MM-DD)"
+        placeholder="Data (DD/MM/YYYY)"
         onChangeText={(value) => setFormGasto({ ...formGasto, data: value })}
       />
 
@@ -61,7 +67,10 @@ export default function CreateGasto() {
       />
 
       <View style={styles.buttonContainer}>
-        <Button title="Cadastrar" onPress={cadastrar} />
+        <Button title="Salvar" onPress={salvar} />
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button title="Voltar" onPress={voltar} />
       </View>
     </KeyboardAvoidingView>
   );
