@@ -3,7 +3,7 @@ export class Tarefa {
   public nome: string;
   public dataInicio: string;
   public dataEntrega: string;
-  public disciplinaId?: string; // FK para Disciplina
+  public disciplinaId?: string;
 
   constructor(obj?: Partial<Tarefa>) {
     if (obj) {

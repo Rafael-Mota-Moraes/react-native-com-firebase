@@ -2,7 +2,6 @@ export class Usuario {
   public id: string;
   public nome: string;
   public email: string;
-  public fone: string;
   public senha: string;
 
   constructor(obj?: Partial<Usuario>) {
@@ -10,7 +9,6 @@ export class Usuario {
       this.id = obj.id;
       this.nome = obj.nome;
       this.email = obj.email;
-      this.fone = obj.fone;
     }
   }
 
@@ -19,7 +17,6 @@ export class Usuario {
             "id" : "${this.id}",
             "nome" : "${this.nome}",
             "email" : "${this.email}",
-            "fone" : "${this.fone}"
         }`;
 
     return obj;
@@ -30,7 +27,6 @@ export class Usuario {
       id: this.id,
       nome: this.nome,
       email: this.email,
-      fone: this.fone,
     };
 
     return usuario;

@@ -2,7 +2,6 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 
 import Login from "./screens/Login";
-import Home from "./screens/Home";
 import Register from "./screens/Register";
 
 import { NavigationContainer } from "@react-navigation/native";
@@ -23,19 +22,18 @@ export default function App() {
           }}
         />
         <Stack.Screen
+          name="Register"
+          component={Register}
           options={{
             headerShown: false,
           }}
-          name="Home"
-          component={Home}
         />
-        <Stack.Screen name="Register" component={Register} />
         <Stack.Screen
-          options={{
-            headerShown: false,
-          }}
           name="Menu"
           component={Menu}
+          options={{
+            headerShown: false,
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

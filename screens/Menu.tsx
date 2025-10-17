@@ -1,16 +1,18 @@
 import * as React from "react";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import Home from "./Home";
-import CreateGasto from "./CreateTarefa";
-import { useNavigation } from "@react-navigation/native";
+import CreateTarefa from "./CreateTarefa";
+import CreateDisciplina from "./CreateDisciplina";
+import CreateProfessor from "./CreateProfessor";
 import { auth } from "../firebase";
 import { StyleSheet } from "react-native";
 import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 import { MaterialIcons } from "@expo/vector-icons";
+
 export const drawerStyles = StyleSheet.create({
   drawerContainer: {
     flex: 1,
-    backgroundColor: "#f5f5f5", // mesmo fundo da tela
+    backgroundColor: "#f5f5f5",
     paddingVertical: 20,
   },
   drawerHeader: {
@@ -41,19 +43,21 @@ export const drawerStyles = StyleSheet.create({
     marginLeft: 12,
   },
   drawerItemActive: {
-    backgroundColor: "#e0e0e0", // destaque suave quando selecionado
+    backgroundColor: "#e0e0e0",
   },
   icon: {
     fontSize: 20,
     color: "#555",
   },
 });
+
 const Drawer: any = createDrawerNavigator();
 
 export default function Menu() {
   return (
     <Drawer.Navigator
       initialRouteName="Página Inicial"
+      screenOptions={{ headerShown: true }}
       drawerContent={(props: any) => (
         <DrawerContentScrollView
           {...props}
@@ -69,16 +73,40 @@ export default function Menu() {
             activeTintColor="#333"
             inactiveTintColor="#555"
           />
+
           <DrawerItem
-            label="Cadastrar Novo Gasto"
-            onPress={() => props.navigation.navigate("Cadastrar Novo Gasto")}
+            label="Cadastrar Nova Tarefa"
+            onPress={() => props.navigation.navigate("Cadastrar Nova Tarefa")}
             icon={({ color, size }) => (
-              <MaterialIcons name="attach-money" size={size} color={color} />
+              <MaterialIcons name="task-alt" size={size} color={color} />
             )}
             labelStyle={drawerStyles.drawerItemText}
             activeTintColor="#333"
             inactiveTintColor="#555"
           />
+
+          <DrawerItem
+            label="Cadastrar Disciplina"
+            onPress={() => props.navigation.navigate("Cadastrar Disciplina")}
+            icon={({ color, size }) => (
+              <MaterialIcons name="menu-book" size={size} color={color} />
+            )}
+            labelStyle={drawerStyles.drawerItemText}
+            activeTintColor="#333"
+            inactiveTintColor="#555"
+          />
+
+          <DrawerItem
+            label="Cadastrar Professor"
+            onPress={() => props.navigation.navigate("Cadastrar Professor")}
+            icon={({ color, size }) => (
+              <MaterialIcons name="school" size={size} color={color} />
+            )}
+            labelStyle={drawerStyles.drawerItemText}
+            activeTintColor="#333"
+            inactiveTintColor="#555"
+          />
+
           <DrawerItem
             label="Sair"
             onPress={() =>
@@ -95,7 +123,9 @@ export default function Menu() {
       )}
     >
       <Drawer.Screen name="Página Inicial" component={Home} />
-      <Drawer.Screen name="Cadastrar Novo Gasto" component={CreateGasto} />
+      <Drawer.Screen name="Cadastrar Nova Tarefa" component={CreateTarefa} />
+      <Drawer.Screen name="Cadastrar Disciplina" component={CreateDisciplina} />
+      <Drawer.Screen name="Cadastrar Professor" component={CreateProfessor} />
     </Drawer.Navigator>
   );
 }

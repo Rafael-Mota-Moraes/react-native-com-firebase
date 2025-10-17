@@ -31,10 +31,9 @@ export default function Register() {
           nome: formUsuario.nome,
           email: formUsuario.email,
           senha: formUsuario.senha,
-          fone: formUsuario.fone,
         });
 
-        navigation.replace("Home");
+        navigation.replace("Menu");
       })
       .catch((err) => {
         console.log(err);
@@ -66,13 +65,6 @@ export default function Register() {
         }
         placeholder="Senha"
         secureTextEntry
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={(value) =>
-          setFormUsuario({ ...formUsuario, fone: value })
-        }
-        placeholder="Fone"
       />
       <View style={styles.buttonContainer}>
         <Button title="Cadastrar" onPress={registrar} />

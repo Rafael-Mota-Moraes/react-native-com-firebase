@@ -1,27 +1,75 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Button,
   KeyboardAvoidingView,
   Text,
   View,
   TextInput,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import { auth, firestore } from "../firebase";
 import { useNavigation } from "@react-navigation/native";
 import { styles } from "../styles";
 import { Tarefa } from "../models/Tarefa";
 
+type DisciplinaItem = {
+  id: string;
+  nome: string;
+};
+
 export default function CreateTarefa() {
   const [formTarefa, setFormTarefa] = useState<Partial<Tarefa>>({});
+  const [disciplinas, setDisciplinas] = useState<DisciplinaItem[]>([]);
+  const [loadingDisciplinas, setLoadingDisciplinas] = useState(true);
 
   const refTarefa = firestore
     .collection("Usuario")
     .doc(auth.currentUser.uid)
     .collection("Tarefa");
 
+  const refDisciplina = firestore
+    .collection("Usuario")
+    .doc(auth.currentUser.uid)
+    .collection("Disciplina");
+
   const navigation = useNavigation<any>();
 
+  useEffect(() => {
+    const loadDisciplinas = async () => {
+      try {
+        const snap = await refDisciplina.get();
+        const list: DisciplinaItem[] = snap.docs.map((d) => ({
+          id: d.id,
+          nome: d.data().nome,
+        }));
+        setDisciplinas(list);
+      } catch (e) {
+        console.log(e);
+        Alert.alert("Erro", "Não foi possível carregar as disciplinas");
+      } finally {
+        setLoadingDisciplinas(false);
+      }
+    };
+    loadDisciplinas();
+  }, []);
+
+  const validar = () => {
+    if (!formTarefa?.nome?.trim()) return "Informe o nome da tarefa";
+    if (!formTarefa?.dataInicio?.trim()) return "Informe a data de início";
+    if (!formTarefa?.dataEntrega?.trim()) return "Informe a data de entrega";
+    if (!formTarefa?.disciplinaId?.trim()) return "Selecione uma disciplina";
+    return null;
+  };
+
   const salvar = async () => {
+    const erro = validar();
+    if (erro) {
+      Alert.alert("Validação", erro);
+      return;
+    }
+
     try {
       const docRef = refTarefa.doc();
       const novaTarefa = new Tarefa({
@@ -29,15 +77,16 @@ export default function CreateTarefa() {
         nome: formTarefa.nome,
         dataInicio: formTarefa.dataInicio,
         dataEntrega: formTarefa.dataEntrega,
+        disciplinaId: formTarefa.disciplinaId,
       });
 
       await docRef.set(novaTarefa.toFirestore());
 
-      alert("Tarefa cadastrada com sucesso!");
+      Alert.alert("Sucesso", "Tarefa cadastrada com sucesso!");
       navigation.replace("Menu");
     } catch (err) {
       console.log(err);
-      alert("Não foi possível cadastrar a tarefa");
+      Alert.alert("Erro", "Não foi possível cadastrar a tarefa");
     }
   };
 
@@ -70,6 +119,27 @@ export default function CreateTarefa() {
           setFormTarefa({ ...formTarefa, dataEntrega: value })
         }
       />
+
+      <View style={{ width: "100%", marginTop: 8 }}>
+        <Text style={{ marginBottom: 6, color: "#333" }}>Disciplina</Text>
+        {loadingDisciplinas ? (
+          <ActivityIndicator />
+        ) : (
+          <View style={[styles.input, { padding: 0 }]}>
+            <Picker
+              selectedValue={formTarefa.disciplinaId ?? ""}
+              onValueChange={(value) =>
+                setFormTarefa({ ...formTarefa, disciplinaId: value })
+              }
+            >
+              <Picker.Item label="Selecione..." value="" />
+              {disciplinas.map((d) => (
+                <Picker.Item key={d.id} label={d.nome} value={d.id} />
+              ))}
+            </Picker>
+          </View>
+        )}
+      </View>
 
       <View style={styles.buttonContainer}>
         <Button title="Salvar" onPress={salvar} />

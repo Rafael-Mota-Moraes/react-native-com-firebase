@@ -5,6 +5,7 @@ import {
   Text,
   View,
   TextInput,
+  Alert,
 } from "react-native";
 import { auth, firestore } from "../firebase";
 import { useNavigation } from "@react-navigation/native";
@@ -12,6 +13,8 @@ import { styles } from "../styles";
 import { Professor } from "../models/Professor";
 
 export default function CreateProfessor() {
+  // PARA CRIAR TIVE QUE ATUALIZAR AS REGRAS NO FIREBASE CONSOLE
+
   const [formProfessor, setFormProfessor] = useState<Partial<Professor>>({});
 
   const refProfessor = firestore
@@ -21,10 +24,22 @@ export default function CreateProfessor() {
 
   const navigation = useNavigation<any>();
 
+  const validar = () => {
+    if (!formProfessor?.nome?.trim()) return "Informe o nome";
+    if (!formProfessor?.email?.trim()) return "Informe o email";
+    if (!formProfessor?.departamento?.trim()) return "Informe o departamento";
+    return null;
+  };
+
   const salvar = async () => {
+    const erro = validar();
+    if (erro) {
+      Alert.alert("Validação", erro);
+      return;
+    }
+
     try {
       const docRef = refProfessor.doc();
-
       const novoProfessor = new Professor({
         id: docRef.id,
         nome: formProfessor.nome,
@@ -34,11 +49,11 @@ export default function CreateProfessor() {
 
       await docRef.set(novoProfessor.toFirestore());
 
-      alert("Professor cadastrado com sucesso!");
+      Alert.alert("Sucesso", "Professor cadastrado com sucesso!");
       navigation.replace("Menu");
     } catch (err) {
       console.log(err);
-      alert("Não foi possível cadastrar o professor");
+      Alert.alert("Erro", "Não foi possível cadastrar o professor");
     }
   };
 
