@@ -7,8 +7,11 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
+  TouchableOpacity,
+  Platform,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { auth, firestore } from "../firebase";
 import { useNavigation } from "@react-navigation/native";
 import { styles } from "../styles";
@@ -23,6 +26,12 @@ export default function CreateTarefa() {
   const [formTarefa, setFormTarefa] = useState<Partial<Tarefa>>({});
   const [disciplinas, setDisciplinas] = useState<DisciplinaItem[]>([]);
   const [loadingDisciplinas, setLoadingDisciplinas] = useState(true);
+
+  // Estados para os date pickers
+  const [showDateInicio, setShowDateInicio] = useState(false);
+  const [showDateEntrega, setShowDateEntrega] = useState(false);
+  const [dateInicio, setDateInicio] = useState(new Date());
+  const [dateEntrega, setDateEntrega] = useState(new Date());
 
   const refTarefa = firestore
     .collection("Usuario")
@@ -54,6 +63,29 @@ export default function CreateTarefa() {
     };
     loadDisciplinas();
   }, []);
+
+  const formatarData = (date: Date): string => {
+    const dia = String(date.getDate()).padStart(2, "0");
+    const mes = String(date.getMonth() + 1).padStart(2, "0");
+    const ano = date.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+  };
+
+  const onChangeDataInicio = (event: any, selectedDate?: Date) => {
+    setShowDateInicio(Platform.OS === "ios");
+    if (selectedDate) {
+      setDateInicio(selectedDate);
+      setFormTarefa({ ...formTarefa, dataInicio: formatarData(selectedDate) });
+    }
+  };
+
+  const onChangeDataEntrega = (event: any, selectedDate?: Date) => {
+    setShowDateEntrega(Platform.OS === "ios");
+    if (selectedDate) {
+      setDateEntrega(selectedDate);
+      setFormTarefa({ ...formTarefa, dataEntrega: formatarData(selectedDate) });
+    }
+  };
 
   const validar = () => {
     if (!formTarefa?.nome?.trim()) return "Informe o nome da tarefa";
@@ -104,22 +136,49 @@ export default function CreateTarefa() {
         onChangeText={(value) => setFormTarefa({ ...formTarefa, nome: value })}
       />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Data de Início (DD/MM/YYYY)"
-        onChangeText={(value) =>
-          setFormTarefa({ ...formTarefa, dataInicio: value })
-        }
-      />
+      {/* Data de Início */}
+      <View style={{ width: "100%", marginTop: 8 }}>
+        <Text style={{ marginBottom: 6, color: "#333" }}>Data de Início</Text>
+        <TouchableOpacity
+          style={[styles.input, { justifyContent: "center" }]}
+          onPress={() => setShowDateInicio(true)}
+        >
+          <Text style={{ color: formTarefa.dataInicio ? "#000" : "#999" }}>
+            {formTarefa.dataInicio || "Selecione a data de início"}
+          </Text>
+        </TouchableOpacity>
+        {showDateInicio && (
+          <DateTimePicker
+            value={dateInicio}
+            mode="date"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={onChangeDataInicio}
+          />
+        )}
+      </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Data de Entrega (DD/MM/YYYY)"
-        onChangeText={(value) =>
-          setFormTarefa({ ...formTarefa, dataEntrega: value })
-        }
-      />
+      {/* Data de Entrega */}
+      <View style={{ width: "100%", marginTop: 8 }}>
+        <Text style={{ marginBottom: 6, color: "#333" }}>Data de Entrega</Text>
+        <TouchableOpacity
+          style={[styles.input, { justifyContent: "center" }]}
+          onPress={() => setShowDateEntrega(true)}
+        >
+          <Text style={{ color: formTarefa.dataEntrega ? "#000" : "#999" }}>
+            {formTarefa.dataEntrega || "Selecione a data de entrega"}
+          </Text>
+        </TouchableOpacity>
+        {showDateEntrega && (
+          <DateTimePicker
+            value={dateEntrega}
+            mode="date"
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            onChange={onChangeDataEntrega}
+          />
+        )}
+      </View>
 
+      {/* Disciplina */}
       <View style={{ width: "100%", marginTop: 8 }}>
         <Text style={{ marginBottom: 6, color: "#333" }}>Disciplina</Text>
         {loadingDisciplinas ? (
